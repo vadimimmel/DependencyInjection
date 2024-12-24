@@ -1,25 +1,44 @@
-import logo from './logo.svg';
+import React, { useState } from "react";
 import './App.css';
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+function useForceUpdate() {
+  const [, setToggle] = useState(false);
+  return () => setToggle(toggle => !toggle);
 }
 
-export default App;
+export const App = ({ controller, model }) => {
+		const [newTask, setNewTask] = useState('');
+		const forceUpdate = useForceUpdate();
+		const tasks  = model.getTasks();
+
+    const handleAddTask = () => {
+        controller.addTask(newTask);
+        setNewTask("");
+    };
+
+    const handleRemoveTask = (index) => {
+        controller.removeTask(index);
+				forceUpdate();
+    };
+
+    return (
+        <div>
+            <h1>Task List</h1>
+            <input
+                type="text"
+                value={newTask}
+                onChange={(e) => setNewTask(e.target.value)}
+								className='input'
+            />
+            <button onClick={handleAddTask}>Add Task</button>
+            <ul>
+                {tasks.map((task, index) => (
+                    <li key={index} className='li'>
+                        {task}
+                        <button onClick={() => handleRemoveTask(index)} className='button'>Remove</button>
+                    </li>
+                ))}
+            </ul>
+        </div>
+    );
+};
